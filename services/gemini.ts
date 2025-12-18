@@ -33,28 +33,33 @@ function decodeBase64(base64: string) {
 
 export const speakIntro = async () => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-preview-tts",
-    contents: [{ parts: [{ text: 'You are being watched. The government has a secret system, a machine that spies on you every hour of every day.' }] }],
-    config: {
-      responseModalities: [Modality.AUDIO],
-      speechConfig: {
-        voiceConfig: {
-          prebuiltVoiceConfig: { voiceName: 'Zephyr' },
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ parts: [{ text: "You've been watched. The government has a secret system, a machine that spies on you every hour of every day. I know because I built it." }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            // Using Zephyr for a clean, clinical yet authoritative tone fitting 'The Machine'
+            prebuiltVoiceConfig: { voiceName: 'Zephyr' },
+          },
         },
       },
-    },
-  });
+    });
 
-  const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-  if (!base64Audio) return;
+    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!base64Audio) return;
 
-  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-  const audioBuffer = await decodeAudioData(decodeBase64(base64Audio), audioCtx, 24000, 1);
-  const source = audioCtx.createBufferSource();
-  source.buffer = audioBuffer;
-  source.connect(audioCtx.destination);
-  source.start();
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+    const audioBuffer = await decodeAudioData(decodeBase64(base64Audio), audioCtx, 24000, 1);
+    const source = audioCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioCtx.destination);
+    source.start();
+  } catch (err) {
+    console.error("Audio generation failed:", err);
+  }
 };
 
 export const searchIntelligence = async (query: string) => {
