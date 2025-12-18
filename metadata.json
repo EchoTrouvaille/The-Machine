@@ -1,0 +1,8 @@
+{
+  "name": "The Machine: surveillance OS",
+  "description": "A Person of Interest themed interactive terminal featuring real-time surveillance (Live API), intelligence gathering (Search Grounding), and tactical asset generation (Veo & Gemini Image).",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
