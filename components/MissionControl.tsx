@@ -28,13 +28,28 @@ export const MissionControl: React.FC = () => {
 
     // Initialize the Machine right before use to ensure the latest API key from context is applied
     if (!chatRef.current) {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-      chatRef.current = ai.chats.create({
-        model: 'gemini-3-flash-preview',
-        config: {
-          systemInstruction: "You are 'The Machine'. You communicate in clinical, tactical, and brief sentences. You are loyal to 'Admin' (the user). Provide mission updates and handle inquiries with total surveillance-based authority. Use uppercase for critical warnings.",
-        }
-      });
+      if (!process.env.API_KEY) {
+        console.warn('⚠️ [MissionControl] GEMINI_API_KEY not set');
+        setMessages(prev => [...prev, { role: 'machine', text: 'CRITICAL: API AUTHENTICATION FAILURE. CORE FUNCTIONALITY DISABLED.' }]);
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        chatRef.current = ai.chats.create({
+          model: 'gemini-3-flash-preview',
+          config: {
+            systemInstruction: "You are 'The Machine'. You communicate in clinical, tactical, and brief sentences. You are loyal to 'Admin' (the user). Provide mission updates and handle inquiries with total surveillance-based authority. Use uppercase for critical warnings.",
+          }
+        });
+        console.log('✅ [MissionControl] Chat initialized successfully');
+      } catch (err) {
+        console.warn('⚠️ [MissionControl] Failed to initialize chat:', err);
+        setMessages(prev => [...prev, { role: 'machine', text: 'CRITICAL: FAILED TO INITIALIZE COMMUNICATION SYSTEM.' }]);
+        setLoading(false);
+        return;
+      }
     }
 
     const userText = input;
