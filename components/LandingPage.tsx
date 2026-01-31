@@ -6,9 +6,17 @@ import { speakIntro } from '../services/gemini';
 export const LandingPage: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [stage, setStage] = useState<'IDLE' | 'BOOTING' | 'COMPLETE'>('IDLE');
   
-  const handleStart = async () => {
+  useEffect(() => {
+    console.log('🔑 [LandingPage] GEMINI_API_KEY present:', !!process.env.API_KEY);
+  }, []);
+  
+  const handleStart = async () => {    
     // Immediate audio trigger upon click to satisfy browser interaction requirement
-    speakIntro();
+    // Non-blocking - proceeds even if audio fails
+    speakIntro()
+      .then(() => console.log('✅ [LandingPage] Audio intro succeeded'))
+      .catch(err => console.warn('⚠️ [LandingPage] Audio intro failed (non-blocking):', err));
+    
     setStage('BOOTING');
   };
 
@@ -40,7 +48,14 @@ export const LandingPage: React.FC<{ onComplete: () => void }> = ({ onComplete }
                 <Typewriter 
                   text={introText} 
                   delay={35} 
-                  onComplete={() => setTimeout(onComplete, 2500)}
+                  onComplete={() => {
+                    console.log('✅ [LandingPage] Typewriter completed');
+                    console.log('⏳ [LandingPage] Waiting 2500ms before calling onComplete...');
+                    setTimeout(() => {
+                      console.log('✅ [LandingPage] Calling onComplete - should transition to main app');
+                      onComplete();
+                    }, 2500);
+                  }}
                 />
              </div>
              <div className="flex justify-between items-end opacity-40">
