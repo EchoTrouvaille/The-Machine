@@ -16,9 +16,6 @@ export const Simulation: React.FC = () => {
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
-    if (!(await (window as any).aistudio.hasSelectedApiKey())) {
-      await (window as any).aistudio.openSelectKey();
-    }
 
     setLoading(true);
     setStatus('CONSULTING NANO BANANA PREDICTION ENGINE...');
@@ -44,9 +41,6 @@ export const Simulation: React.FC = () => {
   };
 
   const checkVeoKey = async () => {
-    if (!(await (window as any).aistudio.hasSelectedApiKey())) {
-      await (window as any).aistudio.openSelectKey();
-    }
     handleAnimate();
   };
 
